@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CMB Bus Routes & Times</title>
+    <link rel="stylesheet" href="bus3.css">
+
+    <style>
+        #weather {
+            position: fixed;
+            top: 105px;
+            right: 30px;
+            background: rgba(255, 255, 255, 0.65);
+            padding: 12px;
+            border-radius: 30px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            width: 180px;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+
+        #weather img {
+            width: 50px;
+        }
+
+        #weather h3 {
+            margin: 5px 0;
+            font-size: 16px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <video autoplay loop muted playsinline id="bgVideo">
+        <source src="bgvideo.mp4" type="video/mp4">
+    </video>
+
+    <nav class="navbar">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="routes.html">Routes</a></li>
+            <li><a href="map.html">Map</a></li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
+    </nav>
+
+
+    <div id="weather">Loading Colombo weather...</div>
+
+    <div class="container">
+        <h1>CMB Bus Routes & Times</h1>
+        <form id="busForm" method="POST" action="bus2.php">
+            <label>Your Location:</label>
+            <div class="input-with-dropdown">
+                <input type="text" name="start" id="start" placeholder="Type or select start" required>
+                <select id="startDropdown" onchange="document.getElementById('start').value = this.value;">
+                    <option value="">▼</option>
+                    <option value="Nugegoda">Nugegoda</option>
+                    <option value="Dehiwala">Dehiwala</option>
+                    <option value="Horana">Horana</option>
+                    <option value="Pettah">Pettah</option>
+                    <option value="Panadura">Panadura</option>
+                    <option value="Maradana">Maradana</option>
+                    <option value="Kollupitiya">Kollupitiya</option>
+                    <option value="Kaduwela">Kaduwela</option>
+                    <option value="Kottawa">Kottawa</option>
+                    <option value="Narahenpita">Narahenpita</option>
+                    <option value="Athurugiriya">Athurugiriya</option>
+                    <option value="Maharagama">Maharagama</option>
+                     <option value="Borella">Borella</option>
+                    <option value="Homagama">Homagama</option>
+                    <option value="Bambalapitiya">Bambalapitiya</option>
+                    <option value="Galle Face">Galle Face</option>
+                    <option value="Wellawatte">Wellawatte</option>
+                    <option value="Mount Lavinia">Mount Lavinia</option>
+                </select>
+            </div>
+
+            <label>Destination:</label>
+            <div class="input-with-dropdown">
+                <input type="text" name="destination" id="destination" placeholder="Type or select destination"
+                    required>
+                <select id="destinationDropdown" onchange="document.getElementById('destination').value = this.value;">
+                    <option value="">▼</option>
+                    <option value="Nugegoda">Nugegoda</option>
+                    <option value="Dehiwala">Dehiwala</option>
+                    <option value="Horana">Horana</option>
+                    <option value="Pettah">Pettah</option>
+                    <option value="Panadura">Panadura</option>
+                    <option value="Maradana">Maradana</option>
+                    <option value="Kollupitiya">Kollupitiya</option>
+                    <option value="Kaduwela">Kaduwela</option>
+                    <option value="Kottawa">Kottawa</option>
+                    <option value="Narahenpita">Narahenpita</option>
+                    <option value="Athurugiriya">Athurugiriya</option>
+                    <option value="Maharagama">Maharagama</option>
+                     <option value="Borella">Borella</option>
+                    <option value="Homagama">Homagama</option>
+                    <option value="Bambalapitiya">Bambalapitiya</option>
+                    <option value="Galle Face">Galle Face</option>
+                    <option value="Wellawatte">Wellawatte</option>
+                    <option value="Mount Lavinia">Mount Lavinia</option>
+                </select>
+            </div>
+
+            <button type="submit">View Details</button>
+        </form>
+        <div id="output"></div>
+    </div>
+
+    <script>
+        // Fetch Colombo Weather
+        const apiKey = "2ab31dc2101d42f7a920587f0c13829f"; // 🔑 Get free from https://openweathermap.org/api
+        const city = "Colombo";
+        const url = `https://api.openweathermap.org/data/2.5/weather?q=${city},LK&appid=${apiKey}&units=metric`;
+
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                const temp = data.main.temp;
+                const desc = data.weather[0].description;
+                const icon = data.weather[0].icon;
+
+                document.getElementById("weather").innerHTML = `
+                    <h3>${city}</h3>
+                    <img src="https://openweathermap.org/img/wn/${icon}@2x.png" alt="Weather">
+                    <p><b>${temp}°C</b></p>
+                    <p>${desc}</p>
+                `;
+            })
+            .catch(() => {
+                document.getElementById("weather").innerText = "Weather unavailable";
+            });
+
+        // Bus Form Script
+        document.getElementById('busForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            var start = document.getElementById('start').value;
+            var destination = document.getElementById('destination').value;
+            var outputDiv = document.getElementById('output');
+            outputDiv.innerHTML = '<div class="loader"></div>'; // Show loader
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', 'bus2.php?start=' + encodeURIComponent(start) + '&destination=' + encodeURIComponent(destination), true);
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    outputDiv.innerHTML = '<div class="result">' + xhr.responseText + '</div>';
+                } else {
+                    outputDiv.innerHTML = '<div class="error">Error fetching data.</div>';
+                }
+            };
+            xhr.send();
+        });
+
+
+
+    </script>
+
+    <footer class="footer">
+        <p>&copy; 2025 CMB Bus Route & Times. All rights reserved.</p>
+    </footer>
+
+</body>
+
+</html>
